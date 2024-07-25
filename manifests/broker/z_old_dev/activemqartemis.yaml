@@ -1,0 +1,41 @@
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemis
+metadata:
+  name: dev
+  namespace: amqbroker-dev
+spec:
+  # Admin User Properties
+  adminUser: admin
+  adminPassword: password
+  # Deploy
+  deploymentPlan:
+    clustered: true
+    image: placeholder
+    messageMigration: true
+    persistenceEnabled: true
+    requireLogin: true
+    size: 2
+  # Jolokia
+  console: 
+    expose: true
+  # Acceptors
+  acceptors:
+    - name: openwire
+      protocols: openwire
+      port: 61616
+      expose: true
+      sslEnabled: false
+      # Dieser Acceptor ermöglicht Verbindungen über das OpenWire-Protokoll.
+    - name: amqp
+      protocols: amqp
+      port: 5672
+      expose: true
+      sslEnabled: false
+      # Dieser Acceptor ermöglicht Verbindungen über das AMQP-Protokoll.
+  addressSettings:
+    addressSetting:
+    - match: fooAddress
+      deadLetterAddress: fooDeadLetterAddress
+      maxDeliveryAttempts: 5
+      maxSizeBytes: 2Mb

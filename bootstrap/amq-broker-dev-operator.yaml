@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: amq-broker-dev-operator
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: amqbroker-dev
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    path: manifests/operator
+    repoURL: 'https://github.com/radudd/amq-broker-on-openshift'
+    targetRevision: HEAD

@@ -1,0 +1,66 @@
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemis
+metadata:
+  name: dev
+  namespace: amqbroker-dev
+spec:
+  env:
+  # Required for mgmg console to use RBAC
+  - name: JAVA_ARGS_APPEND
+    value: "-Dhawtio.role=* -Djavax.management.builder.initial=org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServerBuilder"
+  # Admin User Properties
+  adminUser: admin
+  adminPassword: password
+  # Deploy
+  deploymentPlan:
+    clustered: true
+    image: placeholder
+    messageMigration: true
+    persistenceEnabled: true
+    requireLogin: true
+    size: 2
+    extraMounts:
+      secrets:
+      - "custom-jaas-config"
+  # Jolokia
+  console: 
+    expose: true
+  # Acceptors
+  acceptors:
+    - name: openwire
+      protocols: openwire
+      port: 61616
+      expose: true
+      sslEnabled: false
+    - name: amqp
+      protocols: amqp
+      port: 5672
+      expose: true
+      sslEnabled: false
+  addressSettings:
+    addressSetting:
+    - match: foo
+      deadLetterAddress: foo.dlq
+      maxDeliveryAttempts: 5
+      # Set maxSizeBytes: use addressSettings
+      maxSizeBytes: 2Mb
+  # Create new address: use brokerProperties 
+  brokerProperties:
+    - addressConfigurations."foo".routingTypes=ANYCAST
+    - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST
+    - addressConfigurations."foo.dlq".routingTypes=ANYCAST
+    - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
+    - addressConfigurations."bar".routingTypes=MULTICAST
+    # rbac, give tom's role send access
+    - securityRoles.foo.toms.send=true
+    - securityRoles.foo.toms.receive=true
+    # rbac, give tom's role view/edit access for JMX
+    - securityRoles."mops.address.foo.*".toms.view=true
+    - securityRoles."mops.address.foo.*".toms.edit=true
+    - securityRoles."mops.#".admins.view=true
+    - securityRoles."mops.#".admins.edit=true
+    # deny forceFailover
+    - securityRoles."mops.broker.forceFailover".denied=-
+
+  

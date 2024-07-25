@@ -1,0 +1,53 @@
+## Creating Security properties with ActiveMQArtemisSecurity is deprecated in 7.12
+## Use .spec.brokerProperties instead
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemisSecurity
+metadata:
+  name: ex-prop
+  namespace: amqbroker-dev
+spec:
+  loginModules:
+    propertiesLoginModules:
+      - name: "prop-module"
+        users:
+          - name: "poc"
+            roles:
+              - "all"
+  securityDomains:
+    brokerDomain:
+      name: "activemq"
+      loginModules:
+        - name: "prop-module"
+          flag: "sufficient"
+  securitySettings:
+    broker:
+      - match: "#"
+        permissions:
+          - operationType: "send"
+            roles:
+              - "all"
+          - operationType: "consume"
+            roles:
+              - "all"
+          - operationType: "browse"
+            roles:
+              - "all"
+          - operationType: "createAddress"
+            roles:
+              - "all"
+          - operationType: "deleteAddress"
+            roles:
+              - "all"
+          - operationType: "deleteDurableQues"
+            roles:
+              - "all"
+          - operationType: "createDurableQueue"
+            roles:
+              - "all"
+          - operationType: "deleteNonDurableQues"
+            roles:
+              - "all"
+          - operationType: "createNonDurableQueue"
+            roles:
+              - "all"

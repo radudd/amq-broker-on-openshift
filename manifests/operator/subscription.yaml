@@ -1,0 +1,15 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/amq-broker-rhel8.openshift-operators: ''
+  name: amq-broker-rhel8
+  namespace: amqbroker-dev
+spec:
+  channel: 7.12.x
+  installPlanApproval: Automatic
+  name: amq-broker-rhel8
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: amq-broker-operator.v7.12.1-opr-1

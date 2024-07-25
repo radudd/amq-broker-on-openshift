@@ -1,0 +1,33 @@
+## Creating Security properties with ActiveMQArtemisAddress is deprecated in 7.12
+## Use .spec.brokerProperties instead
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemisAddress
+metadata:
+    name: foo-address
+    namespace: amqbroker-dev
+spec:
+    addressName: foo
+    queueName: foo
+    routingType: anycast
+
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemisAddress
+metadata:
+    name: foo-dlq
+    namespace: amqbroker-dev
+spec:
+    addressName: foo.dlq
+    queueName: foo.dlq
+    routingType: anycast
+
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemisAddress
+metadata:
+    name: bar
+    namespace: amqbroker-dev
+spec:
+    addressName: bar
+    routingType: multicast

@@ -1,0 +1,159 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: root-issuer
+spec:
+  selfSigned: {}
+
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: root-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: "amq.io.root"
+  secretName: root-ca-secret
+  subject:
+    organizations:
+    - "www.amq.io"
+  issuerRef:
+    name: root-issuer
+    kind: ClusterIssuer
+
+
+
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: root-ca-issuer
+spec:
+  ca:
+    secretName: root-ca-secret
+
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: broker-cert-openwire
+  namespace: amqbroker-dev
+spec:
+  commonName: amq.io
+  dnsNames:
+    - <route-url>
+    - service-openwire.amqbroker-dev.svc.cluster.local
+    - dev-openwire-0-svc.amqbroker-dev.svc.cluster.local
+    - dev-openwire-1-svc.amqbroker-dev.svc.cluster.local
+  isCA: false
+  issuerRef:
+    kind: ClusterIssuer
+    name: root-ca-issuer
+  secretName: broker-cert-openwire-secret
+  subject:
+    organizations:
+      - www.amq.io
+
+---
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemis
+metadata:
+  name: dev
+  namespace: amqbroker-dev
+spec:
+  # Don't expose acceptors as we want to load-balance, hence we need to create our own route
+  # The default route mechanism is creating one route per broker
+  # Enable SSL
+  acceptors:
+      # don't expose routes   
+    - expose: false
+      name: openwire
+      port: 61616
+      protocols: openwire
+      # SSL
+      sslEnabled: true
+      # SSL
+      sslSecret: broker-cert-openwire-secret
+      # don't expose routes   
+    - expose: false
+      name: amqp
+      port: 5672
+      protocols: amqp
+      sslEnabled: false
+  addressSettings:
+    addressSetting:
+      - deadLetterAddress: foo.dlq
+        match: foo
+        maxDeliveryAttempts: 5
+        maxSizeBytes: 2Mb
+  adminPassword: password
+  adminUser: admin
+  brokerProperties:
+    # Autoreload when certificate changes
+    - acceptorConfigurations."openwire".params.sslAutoReload=true
+    - addressConfigurations."foo".routingTypes=ANYCAST
+    - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST
+    - addressConfigurations."foo.dlq".routingTypes=ANYCAST
+    - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
+    - addressConfigurations."bar".routingTypes=MULTICAST
+    - securityRoles.foo.toms.send=true
+    - securityRoles.foo.toms.receive=true
+    - securityRoles."mops.address.foo.*".toms.view=true
+    - securityRoles."mops.address.foo.*".toms.edit=true
+    - securityRoles."mops.#".admins.view=true
+    - securityRoles."mops.#".admins.edit=true
+    - securityRoles."mops.broker.forceFailover".denied=-
+  console:
+    expose: true
+  deploymentPlan:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: ActiveMQArtemis
+                    operator: In
+                    values:
+                      - dev
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+    clustered: true
+    extraMounts:
+      secrets:
+        - custom-jaas-config
+    image: placeholder
+    messageMigration: true
+    persistenceEnabled: true
+    requireLogin: true
+    size: 2
+  env:
+    - name: JAVA_ARGS_APPEND
+      value: '-Dhawtio.role=* -Djavax.management.builder.initial=org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServerBuilder'
+
+# Route load balances between two brokers
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  namespace: amqbroker-dev-openwire
+  name: openwire
+  annotations:
+    haproxy.router.openshift.io/balance: roundrobin
+spec:
+  host: <route-url>
+  to:
+    kind: Service
+    name: service-openwire
+    weight: 100
+  port:
+    targetPort: amqp
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

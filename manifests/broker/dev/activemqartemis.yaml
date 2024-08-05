@@ -14,6 +14,18 @@ spec:
   adminPassword: password
   # Deploy
   deploymentPlan:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: ActiveMQArtemis
+                    operator: In
+                    values:
+                      - dev
+              topologyKey: kubernetes.io/hostname
+            weight: 100
     clustered: true
     image: placeholder
     messageMigration: true

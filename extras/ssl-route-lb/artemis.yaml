@@ -10,7 +10,8 @@ spec:
   # The default route mechanism is creating one route per broker
   # Enable SSL
   acceptors:
-      # don't expose routes   
+      # if expose true, one route per broker is created
+      # if we want routes that balance traffic between the brokers, create the route manually, together with the service 
     - expose: false
       name: openwire
       port: 61616

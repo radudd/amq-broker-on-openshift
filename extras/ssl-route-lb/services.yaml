@@ -1,0 +1,36 @@
+# This services are of type: ClusterIP - accessible only inside the cluster
+# since we are using SSL, the brokers are exposed using SSL routes, so services don't need to be externally reachable
+# the services should be created manually as the Operator creates services that matches a single broker. These Services match both brokers and load balance through them
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-openwire
+  namespace: amqbroker-dev
+spec:
+  type: ClusterIP
+  ports:
+    - port: 61616
+      targetPort: 61616
+      protocol: TCP
+      name: openwire
+  selector:
+    ActiveMQArtemis: dev
+    application: dev-app
+    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-amqp
+  namespace: amqbroker-dev
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5672
+      targetPort: 5672
+      protocol: TCP
+      name: amqp
+  selector:
+    ActiveMQArtemis: dev
+    application: dev-app

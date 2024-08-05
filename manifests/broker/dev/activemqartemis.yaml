@@ -14,8 +14,10 @@ spec:
   adminPassword: password
   # Deploy
   deploymentPlan:
+    # distribute brokers on different OpenShift nodes
     affinity:
       podAntiAffinity:
+        # Preferred - if possible
         preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
@@ -26,6 +28,15 @@ spec:
                       - dev
               topologyKey: kubernetes.io/hostname
             weight: 100
+        # Required - they must be on different nodes, otherwise they will not be scheduled        
+        #requiredDuringSchedulingIgnoredDuringExecution:
+        #  - labelSelector:
+        #        matchExpressions:
+        #          - key: ActiveMQArtemis
+        #            operator: In
+        #            values:
+        #              - dev
+        #    topologyKey: kubernetes.io/hostname
     clustered: true
     image: placeholder
     messageMigration: true

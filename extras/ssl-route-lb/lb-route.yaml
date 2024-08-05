@@ -19,3 +19,20 @@ spec:
     termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
+  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-openwire
+  namespace: amqbroker-dev
+spec:
+  type: ClusterIP
+  ports:
+    - port: 61616
+      targetPort: 61616
+      protocol: TCP
+      name: openwire
+  selector:
+    ActiveMQArtemis: dev
+    application: dev-app

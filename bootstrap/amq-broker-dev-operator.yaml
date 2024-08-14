@@ -9,7 +9,6 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: manifests/federation
-    #path: manifests/operator
+    path: manifests/operator
     repoURL: 'https://github.com/radudd/amq-broker-on-openshift'
     targetRevision: HEAD

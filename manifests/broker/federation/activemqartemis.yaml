@@ -1,0 +1,114 @@
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemis
+metadata:
+  name: dev
+  namespace: amqbroker-dev
+spec:
+  env:
+  # Required for mgmg console to use RBAC
+  - name: JAVA_ARGS_APPEND
+    value: "-Dhawtio.role=* -Djavax.management.builder.initial=org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServerBuilder"
+  #- name: STATEFUL_SET_ORDINAL # already there
+  #- name: POD_ORDINAL
+  #  valueFrom: 
+  #    fieldRef:
+  #      fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+  #- name: ORDINALS_REVERSED
+  #  value: "10"
+  - name: FEDERATION_HOST
+    envFrom: 
+    - configMapRef:
+        name: federation-config
+  # Admin User Properties
+  adminUser: admin
+  adminPassword: password
+  # Deploy
+  deploymentPlan:
+    # distribute brokers on different OpenShift nodes
+    affinity:
+      podAntiAffinity:
+        # Preferred - if possible
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: ActiveMQArtemis
+                    operator: In
+                    values:
+                      - dev
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+    clustered: false
+    image: placeholder
+    messageMigration: true
+    persistenceEnabled: true
+    requireLogin: true
+    size: 2
+    extraMounts:
+      secrets:
+      - "custom-jaas-config"
+  # Jolokia
+  console: 
+    expose: true
+  # Acceptors
+  acceptors:
+    - name: openwire
+      protocols: openwire
+      port: 61616
+      expose: true
+      sslEnabled: false
+    - name: amqp
+      protocols: amqp
+      port: 5672
+      expose: true
+      sslEnabled: false
+  addressSettings:
+    addressSetting:
+    - match: foo
+      deadLetterAddress: foo.dlq
+      maxDeliveryAttempts: 5
+      # Set maxSizeBytes: use addressSettings
+      maxSizeBytes: 2Mb
+  # Create new address: use brokerProperties 
+  # https://github.com/apache/activemq-artemis/blob/065bfe14f532858f2c2a20b0afb1a226b08ce013/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L675
+  # https://github.com/apache/activemq-artemis/blob/c442c9b7e686f80fc5a630600b52b171218f9ed6/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L4
+  # https://github.com/apache/activemq-artemis/blob/c442c9b7e686f80fc5a630600b52b171218f9ed6/tests/integration-tests/src/test/resources/reload-amqp-federated-queues-reload.properties#L24
+  brokerProperties:
+    - addressConfigurations."foo".routingTypes=ANYCAST
+    - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST
+    - addressConfigurations."foo.dlq".routingTypes=ANYCAST
+    - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
+    - addressConfigurations."bar".routingTypes=MULTICAST
+    # rbac, give tom's role send access
+    - securityRoles.foo.toms.send=true
+    - securityRoles.foo.toms.consume=true
+    # rbac, give tom's role view/edit access for JMX
+    - securityRoles."mops.address.foo.*".toms.view=true
+    - securityRoles."mops.address.foo.*".toms.edit=true
+    - securityRoles."mops.#".admins.view=true
+    - securityRoles."mops.#".admins.edit=true
+    # deny forceFailover
+    - securityRoles."mops.broker.forceFailover".denied=-
+    # Configure AMQP Federation
+    - broker-0.AMQPConnections.target.uri=tcp:\/\/dev-amqp-1-svc:5672
+    - broker-1.AMQPConnections.target.uri=tcp:\/\/dev-amqp-0-svc:5672
+    - AMQPConnections.target.retryInterval=100
+    - AMQPConnections.target.reconnectAttempts=-1
+    - AMQPConnections.target.user=admin
+    - AMQPConnections.target.password=password
+    - AMQPConnections.target.autoStart=true
+
+    - AMQPConnections.target.federations.abc.type=FEDERATION
+    - AMQPConnections.target.federations.abc.local.policy-example.includes.m1.addressMatch="#"
+    #- AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.queueMatch=queue1
+    - AMQPConnections.target.federations.abc.local.policy-example.autoDelete=true
+    #- "AMQPConnections.target.federations.abc.local.policy-example.includes.m2.addressMatch"="b"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.includes.m3.addressMatch"="c"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.autoDeleteMessageCount"="42"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.autoDeleteDelay"="10000"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.includes.m4.addressMatch"="y"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.excludes.m5.addressMatch"="z"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.enableDivertBindings0"="true"
+    #- "AMQPConnections.target.federations.abc.local.policy-example.properties.a"="b"
+  

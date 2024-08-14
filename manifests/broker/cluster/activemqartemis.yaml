@@ -77,7 +77,7 @@ spec:
     - addressConfigurations."bar".routingTypes=MULTICAST
     # rbac, give tom's role send access
     - securityRoles.foo.toms.send=true
-    - securityRoles.foo.toms.receive=true
+    - securityRoles.foo.toms.consume=true
     # rbac, give tom's role view/edit access for JMX
     - securityRoles."mops.address.foo.*".toms.view=true
     - securityRoles."mops.address.foo.*".toms.edit=true

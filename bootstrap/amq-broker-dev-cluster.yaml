@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: amq-broker-dev
+  name: amq-broker-dev-cluster
   namespace: openshift-gitops
 spec:
   destination:
@@ -9,6 +9,6 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
-    path: manifests/broker/dev
+    path: manifests/broker/cluster
     repoURL: 'https://github.com/radudd/amq-broker-on-openshift'
     targetRevision: HEAD

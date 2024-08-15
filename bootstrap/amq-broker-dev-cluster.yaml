@@ -9,7 +9,9 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: default
   source:
+    # Choose this for federated setup
     path: manifests/broker/federation
+    # Choose this for clustered setup
     #path: manifests/broker/cluster
     repoURL: 'https://github.com/radudd/amq-broker-on-openshift'
     targetRevision: HEAD

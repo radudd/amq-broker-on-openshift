@@ -7,10 +7,32 @@ Please note that with this deployment:
 ** Use this repo at your own risk** 
 
 # About
-This repository contains the manifests to deploy AMQ Broker on OpenShift in a cluster mode. It contains as well ArgoCD Application manifests that deploy AMQ Broker operator and a configured AMQ Broker cluster with two brokers and a set of users.
+This repository contains the manifests to deploy a multi-broker setup of AMQ Broker on OpenShift in a cluster or federated mode. It contains as well ArgoCD Application manifests that deploy AMQ Broker operator and a configured AMQ Broker cluster with two brokers and a set of users.
 Additionally it opens NodePorts for connecting clients externally using OpenWire and AMQP protocols.
 
 # Bootstrap
+
+Before you bootstrap your installation, choose the type of multi-cluster setup you want to deploy: federated or clustered.
+
+```
+cat bootstrap/amq-broker-dev-cluster.yaml
+
+```
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: amq-broker-dev-cluster
+  namespace: openshift-gitops
+spec:
+  ... 
+  source:
+    # Choose this for federated setup
+    path: manifests/broker/federation
+    # Choose this for clustered setup
+    #path: manifests/broker/cluster
+    ...
+```yaml
+
 
 Once ArgoCD is installed in your OpenShift cluster, bootstrap the installation of ArgoCD applications
 

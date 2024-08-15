@@ -100,15 +100,15 @@ spec:
     - AMQPConnections.target.autoStart=true
 
     - AMQPConnections.target.federations.abc.type=FEDERATION
-    - AMQPConnections.target.federations.abc.local.policy-example.includes.m1.addressMatch="#"
-    #- AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.queueMatch=queue1
-    - AMQPConnections.target.federations.abc.local.policy-example.autoDelete=true
-    #- "AMQPConnections.target.federations.abc.local.policy-example.includes.m2.addressMatch"="b"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.includes.m3.addressMatch"="c"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.autoDeleteMessageCount"="42"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.autoDeleteDelay"="10000"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.includes.m4.addressMatch"="y"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.excludes.m5.addressMatch"="z"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.enableDivertBindings0"="true"
-    #- "AMQPConnections.target.federations.abc.local.policy-example.properties.a"="b"
+    - AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.addressMatch="#"
+    - AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.queueMatch="#"
+    #- AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.autoDelete=true
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.includes.m2.addressMatch"="b"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.includes.m3.addressMatch"="c"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.autoDeleteMessageCount"="42"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.autoDeleteDelay"="10000"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.includes.m4.addressMatch"="y"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.excludes.m5.addressMatch"="z"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.enableDivertBindings0"="true"
+    #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.properties.a"="b"
   

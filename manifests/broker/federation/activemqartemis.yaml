@@ -75,6 +75,9 @@ spec:
   # https://github.com/apache/activemq-artemis/blob/c442c9b7e686f80fc5a630600b52b171218f9ed6/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L4
   # https://github.com/apache/activemq-artemis/blob/c442c9b7e686f80fc5a630600b52b171218f9ed6/tests/integration-tests/src/test/resources/reload-amqp-federated-queues-reload.properties#L24
   brokerProperties:
+    # for ssl
+    - acceptorConfigurations.new-acceptor.params.sslAutoReload=true
+
     - addressConfigurations."foo".routingTypes=ANYCAST
     - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST
     - addressConfigurations."foo.dlq".routingTypes=ANYCAST
@@ -98,10 +101,10 @@ spec:
     - AMQPConnections.target.user=admin
     - AMQPConnections.target.password=password
     - AMQPConnections.target.autoStart=true
-
     - AMQPConnections.target.federations.abc.type=FEDERATION
-    - AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.addressMatch="#"
-    - AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.queueMatch="#"
+    - AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.addressMatch="foo"
+    - AMQPConnections.target.federations.abc.localQueuePolicies.policy1.includes.m1.queueMatch="foo"
+
     #- AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.autoDelete=true
     #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.includes.m2.addressMatch"="b"
     #- "AMQPConnections.target.federations.abc.localQueuePolicies.policy-example.includes.m3.addressMatch"="c"

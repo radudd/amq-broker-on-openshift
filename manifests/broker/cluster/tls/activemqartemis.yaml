@@ -1,0 +1,106 @@
+---
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemis
+metadata:
+  name: dev
+  namespace: amqbroker-dev
+spec:
+  env:
+  # Required for mgmg console to use RBAC
+  - name: JAVA_ARGS_APPEND
+    value: "-Dhawtio.role=* -Djavax.management.builder.initial=org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServerBuilder"
+  # Admin User Properties
+  adminUser: admin
+  adminPassword: password
+  # Deploy
+  deploymentPlan:
+    # distribute brokers on different OpenShift nodes
+    affinity:
+      podAntiAffinity:
+        # Preferred - if possible
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: ActiveMQArtemis
+                    operator: In
+                    values:
+                      - dev
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+        # Required - they must be on different nodes, otherwise they will not be scheduled        
+        #requiredDuringSchedulingIgnoredDuringExecution:
+        #  - labelSelector:
+        #        matchExpressions:
+        #          - key: ActiveMQArtemis
+        #            operator: In
+        #            values:
+        #              - dev
+        #    topologyKey: kubernetes.io/hostname
+    clustered: true
+    image: placeholder
+    messageMigration: true
+    persistenceEnabled: true
+    requireLogin: true
+    size: 2
+    extraMounts:
+      secrets:
+      - "custom-jaas-config"
+  # Jolokia
+  console: 
+    expose: true
+  # Acceptors
+  # Enable SSL
+  acceptors:
+    # if expose true, one route per broker is created
+    - expose: true
+      name: openwire
+      port: 61616
+      protocols: openwire
+      # SSL
+      sslEnabled: true
+      # SSL
+      sslSecret: broker-cert-secret
+    - expose: true
+      name: amqp
+      port: 5671
+      protocols: amqp
+      # SSL
+      sslEnabled: true
+      # SSL
+      sslSecret: broker-cert-secret
+  addressSettings:
+    addressSetting:
+    - match: foo
+      deadLetterAddress: foo.dlq
+      maxDeliveryAttempts: 5
+      # Set maxSizeBytes: use addressSettings
+      maxSizeBytes: 2Mb
+  # Create new address: use brokerProperties 
+  brokerProperties:
+    - clusterConfigurations.cc.name=cc
+    - clusterConfigurations.cc.messageLoadBalancingType=ON_DEMAND
+    # Acceptpr config
+    - acceptorConfigurations.amqp.params.sslAutoReload=true
+    - acceptorConfigurations.openwire.params.sslAutoReload=true
+    # Address config
+    - addressConfigurations."foo".routingTypes=ANYCAST
+    - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST
+    - addressConfigurations."foo.dlq".routingTypes=ANYCAST
+    - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
+    - addressConfigurations."bar".routingTypes=MULTICAST
+    # Address settings
+    - addressSettings.#.redistributionDelay=500
+    - addressSettings.foo.deadLetterAddress=foo.dlq
+    - addressSettings.foo.maxDeliveryAttempts=5
+    - addressSettings.foo.maxSizeBytes=2MB
+    # rbac, give tom's role send access
+    - securityRoles.foo.toms.send=true
+    - securityRoles.foo.toms.consume=true
+    # rbac, give tom's role view/edit access for JMX
+    - securityRoles."mops.address.foo.*".toms.view=true
+    - securityRoles."mops.address.foo.*".toms.edit=true
+    - securityRoles."mops.#".admins.view=true
+    - securityRoles."mops.#".admins.edit=true
+    # deny forceFailover
+    - securityRoles."mops.broker.forceFailover".denied=-

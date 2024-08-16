@@ -16,8 +16,9 @@ Before you bootstrap your installation, choose the type of multi-cluster setup y
 
 ```
 cat bootstrap/amq-broker-dev-cluster.yaml
-
 ```
+
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -31,7 +32,7 @@ spec:
     # Choose this for clustered setup
     #path: manifests/broker/cluster
     ...
-```yaml
+```
 
 
 Once ArgoCD is installed in your OpenShift cluster, bootstrap the installation of ArgoCD applications

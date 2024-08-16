@@ -10,10 +10,10 @@ spec:
   project: default
   source:
     # Choose this for federated setup
-    #path: manifests/broker/federation
+    path: manifests/cert-manager-operator
     # Choose this for clustered setup with no-tls
     #path: manifests/broker/cluster/no-tls
     # Choose this for clustered setup with tls
-    path: manifests/broker/cluster/tls
+    #path: manifests/broker/cluster/no-tls
     repoURL: 'https://github.com/radudd/amq-broker-on-openshift'
     targetRevision: HEAD

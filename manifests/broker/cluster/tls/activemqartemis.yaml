@@ -69,13 +69,6 @@ spec:
       sslEnabled: true
       # SSL
       sslSecret: broker-cert-secret
-  addressSettings:
-    addressSetting:
-    - match: foo
-      deadLetterAddress: foo.dlq
-      maxDeliveryAttempts: 5
-      # Set maxSizeBytes: use addressSettings
-      maxSizeBytes: 2Mb
   # Create new address: use brokerProperties 
   brokerProperties:
     - clusterConfigurations.cc.name=cc

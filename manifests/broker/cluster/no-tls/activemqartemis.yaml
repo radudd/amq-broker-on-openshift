@@ -61,13 +61,6 @@ spec:
       port: 5672
       expose: true
       sslEnabled: false
-  addressSettings:
-    addressSetting:
-    - match: foo
-      deadLetterAddress: foo.dlq
-      maxDeliveryAttempts: 5
-      # Set maxSizeBytes: use addressSettings
-      maxSizeBytes: 2Mb
   # Create new address: use brokerProperties 
   brokerProperties:
     - addressConfigurations."foo".routingTypes=ANYCAST
@@ -75,6 +68,11 @@ spec:
     - addressConfigurations."foo.dlq".routingTypes=ANYCAST
     - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
     - addressConfigurations."bar".routingTypes=MULTICAST
+    # Address settings
+    - addressSettings.#.redistributionDelay=500
+    - addressSettings.foo.deadLetterAddress=foo.dlq
+    - addressSettings.foo.maxDeliveryAttempts=5
+    - addressSettings.foo.maxSizeBytes=2MB
     # rbac, give tom's role send access
     - securityRoles.foo.toms.send=true
     - securityRoles.foo.toms.consume=true

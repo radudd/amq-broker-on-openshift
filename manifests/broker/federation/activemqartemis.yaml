@@ -63,13 +63,6 @@ spec:
       port: 5672
       expose: true
       sslEnabled: false
-  addressSettings:
-    addressSetting:
-    - match: foo
-      deadLetterAddress: foo.dlq
-      maxDeliveryAttempts: 5
-      # Set maxSizeBytes: use addressSettings
-      maxSizeBytes: 2Mb
   # Create new address: use brokerProperties 
   # https://github.com/apache/activemq-artemis/blob/065bfe14f532858f2c2a20b0afb1a226b08ce013/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L675
   # https://github.com/apache/activemq-artemis/blob/c442c9b7e686f80fc5a630600b52b171218f9ed6/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L4
@@ -83,6 +76,11 @@ spec:
     - addressConfigurations."foo.dlq".routingTypes=ANYCAST
     - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
     - addressConfigurations."bar".routingTypes=MULTICAST
+    # Address settings
+    - addressSettings.#.redistributionDelay=500
+    - addressSettings.foo.deadLetterAddress=foo.dlq
+    - addressSettings.foo.maxDeliveryAttempts=5
+    - addressSettings.foo.maxSizeBytes=2MB
     # rbac, give tom's role send access
     - securityRoles.foo.toms.send=true
     - securityRoles.foo.toms.consume=true

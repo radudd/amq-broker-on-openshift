@@ -69,8 +69,8 @@ spec:
   # https://github.com/apache/activemq-artemis/blob/c442c9b7e686f80fc5a630600b52b171218f9ed6/tests/integration-tests/src/test/resources/reload-amqp-federated-queues-reload.properties#L24
   brokerProperties:
     # for ssl
-    - acceptorConfigurations.new-acceptor.params.sslAutoReload=true
-
+    - acceptorConfigurations.amqp.params.sslAutoReload=true
+    - acceptorConfigurations.openwire.params.sslAutoReload=true
     - addressConfigurations."foo".routingTypes=ANYCAST
     - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST
     - addressConfigurations."foo.dlq".routingTypes=ANYCAST

@@ -54,9 +54,17 @@ spec:
   acceptors:
     # if expose true, one route per broker is created
     - expose: true
-      name: custom
+      name: amqp
       port: 5671
-      protocols: amqp, openwire
+      protocols: amqp
+      # SSL
+      sslEnabled: true
+      # SSL
+      sslSecret: broker-cert-secret
+    - expose: true
+      name: custom
+      port: 62666
+      protocols: amqp,openwire
       # SSL
       sslEnabled: true
       # SSL

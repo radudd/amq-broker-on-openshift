@@ -75,7 +75,7 @@ spec:
     - clusterConfigurations.cc.messageLoadBalancingType=ON_DEMAND
     # Acceptpr config
     - acceptorConfigurations.amqp.params.sslAutoReload=true
-    - acceptorConfigurations.openwire.params.sslAutoReload=true
+    - acceptorConfigurations.custom.params.sslAutoReload=true
     # Address config
     - addressConfigurations."foo".routingTypes=ANYCAST
     - addressConfigurations."foo".queueConfigs."foo".routingType=ANYCAST

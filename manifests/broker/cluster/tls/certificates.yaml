@@ -56,8 +56,8 @@ spec:
     - dev-openwire-0-svc-rte-amqbroker-dev.$CLUSTER_URL
     - dev-openwire-1-svc-rte-amqbroker-dev.$CLUSTER_URL
     # Services dedicated per broker instance
-    - dev-ss-0.dev-hdls-svc.amqbroker-dev.svc.cluster.local
-    - dev-ss-1.dev-hdls-svc.amqbroker-dev.svc.cluster.local
+    - dev-amqp-0-svc.amqbroker-dev.svc.cluster.local
+    - dev-amqp-1-svc.amqbroker-dev.svc.cluster.local
   isCA: false
   issuerRef:
     kind: ClusterIssuer
@@ -66,3 +66,9 @@ spec:
   subject:
     organizations:
       - www.amq.io
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef: 
+        key: password
+        name: broker-keystore

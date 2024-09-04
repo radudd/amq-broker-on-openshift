@@ -28,7 +28,7 @@ spec:
                       - dev
               topologyKey: kubernetes.io/hostname
             weight: 100
-        # Required - they must be on different nodes, otherwise they will not be scheduled        
+        # Required - they must be on different nodes, otherwise they will not be scheduled        
         #requiredDuringSchedulingIgnoredDuringExecution:
         #  - labelSelector:
         #        matchExpressions:
@@ -83,6 +83,7 @@ spec:
     - addressConfigurations."foo.dlq".queueConfigs."foo.dlq".routingType=ANYCAST
     - addressConfigurations."bar".routingTypes=MULTICAST
     # Address settings
+    # check with this if it's properly set: curl -s http://localhost:8161/jolokia/read/org.apache.activemq.artemis:broker="myBroker",component=addresses,address="#"/redistributionDelay
     - addressSettings.#.redistributionDelay=500
     - addressSettings.foo.deadLetterAddress=foo.dlq
     - addressSettings.foo.maxDeliveryAttempts=5

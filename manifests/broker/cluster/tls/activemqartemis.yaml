@@ -65,7 +65,7 @@ spec:
     #  sslSecret: broker-cert-secret
     - expose: true
       name: custom
-      port: 62666
+      port: 5671
       protocols: amqp,openwire
       # SSL
       sslEnabled: true

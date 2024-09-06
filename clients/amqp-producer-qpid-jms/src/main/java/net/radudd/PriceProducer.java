@@ -1,5 +1,7 @@
 package net.radudd;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,15 +45,18 @@ public class PriceProducer implements Runnable {
       try (JMSContext context = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
         jakarta.jms.Destination queue = context.createQueue("foo");
         JMSProducer producer = context.createProducer();
-        int messageNumber = 1;
         while (true) {
             try {
-                //context.createProducer().send(context.createQueue("foo"), Integer.toString(messageNumber));
-                producer.send(queue, Integer.toString(messageNumber));
-                System.out.println("Sent message: " + messageNumber);
+                // Create TS message
+                // Get the current date and time
+                LocalDateTime now = LocalDateTime.now();
+                // Define the format
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                // Format the current date and time
+                String formattedNow = now.format(formatter);
+                producer.send(queue, formattedNow);
+                System.out.println("Sent message: " + formattedNow);
 
-                messageNumber++;
-                
                 // Sleep for one second before sending the next message
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -59,15 +64,8 @@ public class PriceProducer implements Runnable {
                 break; // Exit loop if the thread is interrupted
             } catch (Exception e) {
                 e.printStackTrace();
-                // Optionally, you can break the loop or handle the exception in some other way
             }
         }
-
-    //    try (JMSContext context = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
-
-    //        context.createProducer().send(context.createQueue("foo"), Integer.toString(random.nextInt(100)));
-    //    }
-    //}
   }
 }
 }

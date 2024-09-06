@@ -1,0 +1,13 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: amqbroker-dev
+  namespace: amqbroker-dev
+spec:
+  selector:
+    matchLabels:
+      ActiveMQArtemis: dev
+  podMetricsEndpoints:
+  - targetPort: 8161
+    path: /metrics
